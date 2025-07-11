@@ -28,7 +28,7 @@ Indítás után a WPF alkalmazás:
 
 1. Klónozd a repót:
 ```bash
-git clone https://github.com/<felhasználónév>/ComAutoWrapperDemo.git
+git clone https://github.com/pmonitor0/ComAutoWrapperDemo.git
 Nyisd meg Visual Studio-ban (.sln fájl).
 
 Ellenőrizd, hogy a NuGet csomag (ComAutoWrapper) telepítve van.
