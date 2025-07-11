@@ -2,7 +2,7 @@
 bin/
 obj/
 TestResults/
-
+.gitignore
 # NuGet csomagok
 *.nupkg
 *.snupkg
