@@ -119,6 +119,23 @@ namespace ComAutoWrapperDemo
 
 		private void Window_Initialized(object sender, EventArgs e)
 		{
+			Task.Run(() =>
+			{
+				RunExcelDemo();
+				RunWordDemo();
+
+				Dispatcher.Invoke(() =>
+				{
+					MessageBox.Show("A demók lefutottak.");
+					this.Show(); // vagy akár megjeleníthetsz adatot is a UI-n
+				});
+			});
+			this.Hide(); // amíg nem fut le a demo
+		}
+
+
+		private void RunExcelDemo()
+		{
 			excel = Activator.CreateInstance(Type.GetTypeFromProgID("Excel.Application")!);
 			ComInvoker.SetProperty(excel!, "Visible", true);
 			ComInvoker.SetProperty(excel!, "DisplayAlerts", true);
@@ -138,7 +155,7 @@ namespace ComAutoWrapperDemo
 					arr[i, j] = (i + 1) * (j + 1);
 				}
 			}
-			rng = ComInvoker.GetProperty<object>(WorkSheet!, "Range", new object[] {"A1:O15"} );
+			rng = ComInvoker.GetProperty<object>(WorkSheet!, "Range", new object[] { "A1:O15" });
 			ComInvoker.SetProperty(rng!, "Value", arr);
 
 			var (methods, propsGet, propsSet) = ComTypeInspector.ListMembers(workbook!);
@@ -177,5 +194,104 @@ namespace ComAutoWrapperDemo
 			GC.Collect();
 			GC.WaitForPendingFinalizers();
 		}
+
+		private void RunWordDemo()
+		{
+			var word = Activator.CreateInstance(Type.GetTypeFromProgID("Word.Application")!);
+			ComInvoker.SetProperty(word, "Visible", true);
+
+			var docs = ComInvoker.GetProperty<object>(word, "Documents");
+			var doc = ComInvoker.CallMethod<object>(docs, "Add");
+
+			var content = ComInvoker.GetProperty<object>(doc, "Content");
+
+			var para = ComInvoker.GetProperty<object>(content, "Paragraphs");
+			var first = ComInvoker.GetProperty<object>(para, "First");
+			var range = ComInvoker.GetProperty<object>(first, "Range");
+
+			ComInvoker.SetProperty(range, "Text", "Ez egy formázott bekezdés.");
+			ComInvoker.SetProperty(range, "Bold", 1);
+			var font = ComInvoker.GetProperty<object>(range, "Font");
+			ComInvoker.SetProperty(font, "Size", 16);
+
+			var (methods, propsGet, propsSet) = ComTypeInspector.ListMembers(content);
+			methods.ForEach(Console.WriteLine);
+			propsGet.ForEach(Console.WriteLine);
+			propsSet.ForEach(Console.WriteLine);
+
+			ComInvoker.CallMethod(doc, "SaveAs", "D:\\Temp\\DemoWord.docx");
+			Console.WriteLine("Egy billentyű leütése után bezárjuk a word-ot.");
+			Console.ReadKey(true);
+			ComInvoker.CallMethod(word, "Quit");
+		}
+
+		private object? wordApp;
+		private object? wordDoc;
+
+		private void StartWord_Click(object sender, RoutedEventArgs e)
+		{
+			try
+			{
+				wordApp = Activator.CreateInstance(Type.GetTypeFromProgID("Word.Application")!);
+				ComInvoker.SetProperty(wordApp!, "Visible", true);
+				LogBox.AppendText("Word elindítva.\n");
+			}
+			catch (Exception ex)
+			{
+				LogBox.AppendText($"Hiba a Word indításakor: {ex.Message}\n");
+			}
+		}
+
+		private void AddParagraph_Click(object sender, RoutedEventArgs e)
+		{
+			try
+			{
+				if (wordApp == null)
+				{
+					LogBox.AppendText("A Word nincs elindítva.\n");
+					return;
+				}
+
+				var docs = ComInvoker.GetProperty<object>(wordApp, "Documents");
+				wordDoc = ComInvoker.CallMethod<object>(docs, "Add");
+				var content = ComInvoker.GetProperty<object>(wordDoc, "Content");
+				var paras = ComInvoker.GetProperty<object>(content, "Paragraphs");
+				var firstPara = ComInvoker.GetProperty<object>(paras, "First");
+				var range = ComInvoker.GetProperty<object>(firstPara, "Range");
+
+				ComInvoker.SetProperty(range, "Text", "Ez egy formázott bekezdés.");
+				ComInvoker.SetProperty(range, "Bold", 1);
+				var font = ComInvoker.GetProperty<object>(range, "Font");
+				ComInvoker.SetProperty(font, "Size", 16);
+
+				LogBox.AppendText("Formázott bekezdés létrehozva a Word dokumentumban.\n");
+			}
+			catch (Exception ex)
+			{
+				LogBox.AppendText($"Hiba a bekezdés létrehozásakor: {ex.Message}\n");
+			}
+		}
+
+		private void QuitWord_Click(object sender, RoutedEventArgs e)
+		{
+			try
+			{
+				if (wordApp != null)
+				{
+					ComInvoker.CallMethod(wordApp, "Quit");
+					Marshal.ReleaseComObject(wordApp);
+					wordApp = null;
+					LogBox.AppendText("Word bezárva.\n");
+				}
+			}
+			catch (Exception ex)
+			{
+				LogBox.AppendText($"Hiba a Word bezárásakor: {ex.Message}\n");
+			}
+
+			GC.Collect();
+			GC.WaitForPendingFinalizers();
+		}
+
 	}
 }

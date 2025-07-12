@@ -29,9 +29,19 @@ Indítás után a WPF alkalmazás:
 1. Klónozd a repót:
 ```bash
 git clone https://github.com/pmonitor0/ComAutoWrapperDemo.git
-Nyisd meg Visual Studio-ban (.sln fájl).
+2. Nyisd meg Visual Studio-ban (.sln fájl).
 
-Ellenőrizd, hogy a NuGet csomag (ComAutoWrapper) telepítve van.
+3. Ellenőrizd, hogy a NuGet csomag (ComAutoWrapper) telepítve van.
+
+## Full Excel + Word automation demo
+
+This WPF app runs both Excel and Word COM automation examples without any Interop DLLs:
+
+- Writes data into Excel
+- Formats Word paragraph
+- Inspects COM members via `ComTypeInspector`
+
+Source: [ComAutoWrapperDemo](https://github.com/pmonitor0/ComAutoWrapperDemo)
 
 Követelmények
 Windows (COM miatt)
@@ -39,6 +49,7 @@ Windows (COM miatt)
 .NET 6/7/8/9
 
 Telepített Microsoft Excel
+Telepített Microsoft Word
 
 Kapcsolódó projekt
 [ComAutoWrapper (NuGet)](https://www.nuget.org/packages/ComAutoWrapper)
