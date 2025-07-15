@@ -5,6 +5,9 @@ using ComAutoWrapper;
 using System.Runtime.InteropServices.Marshalling;
 using System.CodeDom;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Drawing;
+using System.Text.RegularExpressions;
 
 namespace ComAutoWrapperDemo
 {
@@ -136,7 +139,7 @@ namespace ComAutoWrapperDemo
 
 		private void RunExcelDemo()
 		{
-			excel = Activator.CreateInstance(Type.GetTypeFromProgID("Excel.Application")!);
+			excel = Activator.CreateInstance(Type.GetTypeFromProgID("Excel.Application"));
 			ComInvoker.SetProperty(excel!, "Visible", true);
 			ComInvoker.SetProperty(excel!, "DisplayAlerts", true);
 			workbooks = ComInvoker.GetProperty<object>(excel!, "Workbooks");
@@ -160,21 +163,61 @@ namespace ComAutoWrapperDemo
 
 			var (methods, propsGet, propsSet) = ComTypeInspector.ListMembers(workbook!);
 
-			Console.WriteLine("Methods:");
+			Console.WriteLine("Excel WorkBook Methods:");
 			methods.ForEach(Console.WriteLine);
 
-			Console.WriteLine("PropertyGet:");
+			Console.WriteLine("\nExcel WorkBook PropertyGet:");
 			propsGet.ForEach(Console.WriteLine);
 
-			Console.WriteLine("PropertySet:");
+			Console.WriteLine("\nExcel WorkBook PropertySet:");
 			propsSet.ForEach(Console.WriteLine);
 
 			var typeName = ComTypeInspector.GetTypeName(workbook!);
-			Console.WriteLine($"COM type: {typeName}");
+			Console.WriteLine($"\nCOM type: {typeName}");
 
 			string? name = ComInvoker.GetProperty<string>(workbook!, "Name");
-			Console.WriteLine(name);
-			Console.WriteLine("Egy billentyű leütése után bezárjuk az excel-t.");
+			Console.WriteLine($"\nWorkbook Name: {name}");
+			
+			if (ComAutoHelper.TryGetProperty(excel!, "Version", out string? version))
+				Console.WriteLine($"\nExcel version: {version}");
+			else
+				Console.WriteLine("\nProperty not found or failed.");
+			bool exists = ComAutoHelper.PropertyExists(excel!, "DisplayAlerts0");
+			if (exists)
+				Console.WriteLine("\nProperty exists.");
+			else
+				Console.WriteLine("\nProperty not exists.");
+
+			Console.WriteLine("Jelölj ki cellákat a munkafüzetben, majd nyomj meg egy billentyűt.");
+			Console.ReadKey(true);
+
+			var selection = ComInvoker.GetProperty<object>(excel!, "Selection");
+			var areas = ComInvoker.GetProperty<object>(selection, "Areas");
+			int areaCount = ComInvoker.GetProperty<int>(areas, "Count");
+
+			for (int a = 1; a <= areaCount; a++)
+			{
+				var area = ComInvoker.GetProperty<object>(areas, "Item", new object[] { a });
+				var cellsInArea = ComInvoker.GetProperty<object>(area, "Cells");
+				int count = ComInvoker.GetProperty<int>(cellsInArea, "Count");
+
+				for (int i = 1; i <= count; i++)
+				{
+					var cell = ComInvoker.GetProperty<object>(cellsInArea, "Item", new object[] { i });
+					string address = ComInvoker.GetProperty<string>(cell, "Address");
+
+					var match = Regex.Match(address, @"\$([A-Z]+)\$(\d+)");
+					if (match.Success)
+					{
+						string colLetter = match.Groups[1].Value;
+						int row = int.Parse(match.Groups[2].Value);
+						int col = ColumnLetterToNumber(colLetter);
+						Console.WriteLine($"Cell #{i}: Row={row}, Column={col}");
+					}
+				}
+			}
+
+			Console.WriteLine("\nEgy billentyű leütése után bezárjuk az excel-t, majd megnyitjuk a Word-ot");
 			Console.ReadKey(true);
 			ComInvoker.CallMethod(workbook!, "Close", (object)false);
 			workbook = null;
@@ -195,34 +238,60 @@ namespace ComAutoWrapperDemo
 			GC.WaitForPendingFinalizers();
 		}
 
+		int ColumnLetterToNumber(string col)
+		{
+			int sum = 0;
+			foreach (char c in col)
+			{
+				sum *= 26;
+				sum += (char.ToUpper(c) - 'A' + 1);
+			}
+			return sum;
+		}
+
 		private void RunWordDemo()
 		{
 			var word = Activator.CreateInstance(Type.GetTypeFromProgID("Word.Application")!);
-			ComInvoker.SetProperty(word, "Visible", true);
+			ComInvoker.SetProperty(word!, "Visible", true);
 
-			var docs = ComInvoker.GetProperty<object>(word, "Documents");
-			var doc = ComInvoker.CallMethod<object>(docs, "Add");
+			var docs = ComInvoker.GetProperty<object>(word!, "Documents");
+			var doc = ComInvoker.CallMethod<object>(docs!, "Add");
 
-			var content = ComInvoker.GetProperty<object>(doc, "Content");
+			var content = ComInvoker.GetProperty<object>(doc!, "Content");
 
-			var para = ComInvoker.GetProperty<object>(content, "Paragraphs");
-			var first = ComInvoker.GetProperty<object>(para, "First");
-			var range = ComInvoker.GetProperty<object>(first, "Range");
+			var para = ComInvoker.GetProperty<object>(content!, "Paragraphs");
+			var first = ComInvoker.GetProperty<object>(para!, "First");
+			var range = ComInvoker.GetProperty<object>(first!, "Range");
+			ComInvoker.SetProperty(range!, "Text", "Ez egy stílusos bekezdés.");
+			WordStyleHelper.ApplyStyle(
+				range!,
+				fontColor: Color.Red,
+				backgroundColor: Color.LightGreen,
+				fontSize: 14,
+				bold: true,
+				italic: true,
+				underline: true);
 
-			ComInvoker.SetProperty(range, "Text", "Ez egy formázott bekezdés.");
-			ComInvoker.SetProperty(range, "Bold", 1);
-			var font = ComInvoker.GetProperty<object>(range, "Font");
-			ComInvoker.SetProperty(font, "Size", 16);
+			var borders = ComInvoker.GetProperty<object>(range!, "Borders");
+			ComInvoker.SetProperty(borders!, "OutsideLineStyle", 1); // wdLineStyleSingle*/
 
-			var (methods, propsGet, propsSet) = ComTypeInspector.ListMembers(content);
+			//WordStyleHelper.ApplyBoldColoredBackground(range!, Color.Red, Color.Green, 16);
+
+			var (methods, propsGet, propsSet) = ComTypeInspector.ListMembers(content!);
+			Console.WriteLine("\nWord Methods:");
 			methods.ForEach(Console.WriteLine);
+			Console.WriteLine("\nWord PropertyGet:");
 			propsGet.ForEach(Console.WriteLine);
+			Console.WriteLine("\nWord PropertySet:");
 			propsSet.ForEach(Console.WriteLine);
 
-			ComInvoker.CallMethod(doc, "SaveAs", "D:\\Temp\\DemoWord.docx");
+
+
+
+			ComInvoker.CallMethod(doc!, "SaveAs", "D:\\Temp\\DemoWord.docx");
 			Console.WriteLine("Egy billentyű leütése után bezárjuk a word-ot.");
 			Console.ReadKey(true);
-			ComInvoker.CallMethod(word, "Quit");
+			ComInvoker.CallMethod(word!, "Quit");
 		}
 
 		private object? wordApp;
@@ -253,16 +322,16 @@ namespace ComAutoWrapperDemo
 				}
 
 				var docs = ComInvoker.GetProperty<object>(wordApp, "Documents");
-				wordDoc = ComInvoker.CallMethod<object>(docs, "Add");
-				var content = ComInvoker.GetProperty<object>(wordDoc, "Content");
-				var paras = ComInvoker.GetProperty<object>(content, "Paragraphs");
-				var firstPara = ComInvoker.GetProperty<object>(paras, "First");
-				var range = ComInvoker.GetProperty<object>(firstPara, "Range");
+				wordDoc = ComInvoker.CallMethod<object>(docs!, "Add");
+				var content = ComInvoker.GetProperty<object>(wordDoc!, "Content");
+				var paras = ComInvoker.GetProperty<object>(content!, "Paragraphs");
+				var firstPara = ComInvoker.GetProperty<object>(paras!, "First");
+				var range = ComInvoker.GetProperty<object>(firstPara!, "Range");
 
-				ComInvoker.SetProperty(range, "Text", "Ez egy formázott bekezdés.");
-				ComInvoker.SetProperty(range, "Bold", 1);
-				var font = ComInvoker.GetProperty<object>(range, "Font");
-				ComInvoker.SetProperty(font, "Size", 16);
+				ComInvoker.SetProperty(range!, "Text", "Ez egy formázott bekezdés.");
+				ComInvoker.SetProperty(range!, "Bold", 1);
+				var font = ComInvoker.GetProperty<object>(range!, "Font");
+				ComInvoker.SetProperty(font!, "Size", 16);
 
 				LogBox.AppendText("Formázott bekezdés létrehozva a Word dokumentumban.\n");
 			}
@@ -278,6 +347,7 @@ namespace ComAutoWrapperDemo
 			{
 				if (wordApp != null)
 				{
+					ComInvoker.SetProperty(wordDoc!, "Saved", true);
 					ComInvoker.CallMethod(wordApp, "Quit");
 					Marshal.ReleaseComObject(wordApp);
 					wordApp = null;

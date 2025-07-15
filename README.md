@@ -22,7 +22,7 @@ Indítás után a WPF alkalmazás:
    - Kitölti szorzótáblával a cellákat
    - Lekérdezi a `Worksheet` COM tagjait
    - Kiírja őket a konzolra
-2. Ezután megjeleníti a `MainWindow`-t, vagy kilép, ha nincs további felhasználói interakció
+2. Ezután megjeleníti a `MainWindow`-t.
 
 ## Telepítés
 
