@@ -11,6 +11,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ExcelSelectionHelper.cs" />
+    <Compile Remove="ExcelStyleHelper.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
@@ -18,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ComAutoWrapper" Version="1.1.3.2" />
+    <PackageReference Include="ComAutoWrapper" Version="1.1.4" />
   </ItemGroup>
 
 </Project>

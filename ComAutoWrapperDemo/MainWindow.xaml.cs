@@ -8,6 +8,9 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 
 namespace ComAutoWrapperDemo
 {
@@ -187,37 +190,26 @@ namespace ComAutoWrapperDemo
 				Console.WriteLine("\nProperty exists.");
 			else
 				Console.WriteLine("\nProperty not exists.");
+			//Console.WriteLine("Select cells in the workbook, then press a key");
+			//Console.ReadKey(true);
 
-			Console.WriteLine("Jelölj ki cellákat a munkafüzetben, majd nyomj meg egy billentyűt.");
-			Console.ReadKey(true);
+			ComAutoWrapper.ExcelSelectionHelper.SelectCells(WorkSheet!, new string[] { "A1", "B2", "C3", "D4" });
 
-			var selection = ComInvoker.GetProperty<object>(excel!, "Selection");
-			var areas = ComInvoker.GetProperty<object>(selection, "Areas");
-			int areaCount = ComInvoker.GetProperty<int>(areas, "Count");
+			var cells = ComAutoWrapper.ExcelSelectionHelper.GetSelectedCellObjects(excel);
 
-			for (int a = 1; a <= areaCount; a++)
+			foreach (var (row, col, cell) in cells)
 			{
-				var area = ComInvoker.GetProperty<object>(areas, "Item", new object[] { a });
-				var cellsInArea = ComInvoker.GetProperty<object>(area, "Cells");
-				int count = ComInvoker.GetProperty<int>(cellsInArea, "Count");
-
-				for (int i = 1; i <= count; i++)
-				{
-					var cell = ComInvoker.GetProperty<object>(cellsInArea, "Item", new object[] { i });
-					string address = ComInvoker.GetProperty<string>(cell, "Address");
-
-					var match = Regex.Match(address, @"\$([A-Z]+)\$(\d+)");
-					if (match.Success)
-					{
-						string colLetter = match.Groups[1].Value;
-						int row = int.Parse(match.Groups[2].Value);
-						int col = ColumnLetterToNumber(colLetter);
-						Console.WriteLine($"Cell #{i}: Row={row}, Column={col}");
-					}
-				}
+				Console.WriteLine($"Cell at Row={row}, Column={col}");
+				// Példa: háttérszín sárgára állítása
+				ExcelStyleHelper.SetCellBackground(cell, Color.Yellow);
 			}
 
-			Console.WriteLine("\nEgy billentyű leütése után bezárjuk az excel-t, majd megnyitjuk a Word-ot");
+
+			var selectedCells = ComAutoWrapper.ExcelSelectionHelper.GetSelectedCellCoordinates(excel);
+			foreach (var (row, col) in selectedCells)
+				Console.WriteLine($"Row={row}, Column={col}");
+
+			Console.WriteLine("\nAfter pressing a key, we close Excel and then open Word");
 			Console.ReadKey(true);
 			ComInvoker.CallMethod(workbook!, "Close", (object)false);
 			workbook = null;
@@ -236,17 +228,6 @@ namespace ComAutoWrapperDemo
 
 			GC.Collect();
 			GC.WaitForPendingFinalizers();
-		}
-
-		int ColumnLetterToNumber(string col)
-		{
-			int sum = 0;
-			foreach (char c in col)
-			{
-				sum *= 26;
-				sum += (char.ToUpper(c) - 'A' + 1);
-			}
-			return sum;
 		}
 
 		private void RunWordDemo()
