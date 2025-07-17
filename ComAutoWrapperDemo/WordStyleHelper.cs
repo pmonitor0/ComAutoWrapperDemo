@@ -31,11 +31,11 @@ namespace ComAutoWrapperDemo
 				ComInvoker.SetProperty(range, "Underline", 1);
 
 			if (fontColor.HasValue)
-				ComInvoker.SetProperty(font, "Color", fontColor.Value);
+				ComInvoker.SetProperty(font!, "Color", fontColor.Value);
 			if (fontSize.HasValue)
-				ComInvoker.SetProperty(font, "Size", fontSize.Value);
+				ComInvoker.SetProperty(font!, "Size", fontSize.Value);
 			if (backgroundColor.HasValue)
-				ComInvoker.SetProperty(shading, "BackgroundPatternColor", backgroundColor.Value);
+				ComInvoker.SetProperty(shading!, "BackgroundPatternColor", backgroundColor.Value);
 
 			if (font != null) Marshal.ReleaseComObject(font);
 			if (shading != null) Marshal.ReleaseComObject(shading);
