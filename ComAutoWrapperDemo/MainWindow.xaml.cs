@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace ComAutoWrapperDemo
 {
@@ -204,7 +205,7 @@ namespace ComAutoWrapperDemo
 				Console.WriteLine($"\nExcel version: {version}");
 			else
 				Console.WriteLine("\nProperty not found or failed.");
-			bool exists = ComAutoHelper.PropertyExists(excel!, "DisplayAlerts0");
+			bool exists = ComAutoHelper.PropertyExists(excel!, "DisplayAlerts");
 			if (exists)
 				Console.WriteLine("\nProperty exists.");
 			else
@@ -212,15 +213,20 @@ namespace ComAutoWrapperDemo
 			//Console.WriteLine("Select cells in the workbook, then press a key");
 			//Console.ReadKey(true);
 
-			ExcelSelectionHelper.SelectCells(WorkSheet!, new string[] { "A1", "B2", "C3", "D4" });
+			//ExcelSelectionHelper.SelectCells(WorkSheet!, new string[] { "A1:C3", "D4", "E5", "F6" });
+
+
+			//object? usedRange = comworksheet.GetType().InvokeMember("UsedRange", BindingFlags.GetProperty, null, comworksheet, null);
+
+			HighlightUsedRange(WorkSheet!, System.Drawing.Color.Red);
 
 			var cells = ExcelSelectionHelper.GetSelectedCellObjects(excel);
 
 			foreach (var (row, col, cell) in cells)
 			{
-				Console.WriteLine($"Cell at Row={row}, Column={col}");
+				//Console.WriteLine($"Cell at Row={row}, Column={col}");
 				// Példa: háttérszín sárgára állítása
-				ExcelStyleHelper.SetCellBackground(cell, Color.Yellow);
+				//ExcelStyleHelper.SetCellBackground(cell, System.Drawing.Color.Yellow);
 			}
 
 
@@ -242,6 +248,20 @@ namespace ComAutoWrapperDemo
 			
 		}
 
+		public static void SelectUsedRange(object worksheet)
+		{
+			var usedRange = ComInvoker.GetProperty<object>(worksheet, "UsedRange");
+			ComInvoker.CallMethod(usedRange!, "Select");
+		}
+
+		public static void HighlightUsedRange(object worksheet, System.Drawing.Color color)
+		{
+			SelectUsedRange(worksheet);
+			var usedRange = ComInvoker.GetProperty<object>(worksheet, "UsedRange");
+			var interior = ComInvoker.GetProperty<object>(usedRange, "Interior");
+			ComInvoker.SetProperty(interior!, "Color", color);
+		}
+
 		private void RunWordDemo()
 		{
 			var word = Activator.CreateInstance(Type.GetTypeFromProgID("Word.Application")!);
@@ -258,8 +278,8 @@ namespace ComAutoWrapperDemo
 			ComInvoker.SetProperty(range!, "Text", "Ez egy stílusos bekezdés.");
 			WordStyleHelper.ApplyStyle(
 				range!,
-				fontColor: Color.Red,
-				backgroundColor: Color.LightGreen,
+				fontColor: System.Drawing.Color.Red,
+				backgroundColor: System.Drawing.Color.LightGreen,
 				fontSize: 14,
 				bold: true,
 				italic: true,

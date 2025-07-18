@@ -1,68 +1,82 @@
 # ComAutoWrapperDemo
 
-This project is a **WPF-based demo** for using the [ComAutoWrapper](https://www.nuget.org/packages/ComAutoWrapper) NuGet package.  
-It demonstrates how to work with COM objects (e.g., Excel) without Interop DLLs in a simple, typed, and minimalistic way.
+This project is a **WPF-based demo** for using the [`ComAutoWrapper`](https://www.nuget.org/packages/ComAutoWrapper) NuGet package.  
+It demonstrates how to automate COM objects (like Excel or Word) **without any Interop DLLs**, in a **type-safe and simplified** way.
 
-## Key Features
+---
 
-- Excel automation from WPF
-- COM property access (`GetProperty<T>`, `SetProperty`)
-- COM method calls (`CallMethod<T>`)
-- COM member introspection:
-  - Methods (`Method`)
-  - Readable (`PropertyGet`)
-  - Writable (`PropertySet`) properties
+## 🚀 Features Demonstrated
 
-## How the demo works
+- Excel and Word automation from WPF
+- COM property access:
+  - `GetProperty<T>(...)`
+  - `SetProperty(...)`
+- COM method invocation:
+  - `CallMethod<T>(...)`
+- COM introspection (via `ComTypeInspector`)
+  - List of readable, writable properties and methods
+- Excel selection helpers:
+  - Selecting specific cells
+  - Querying selected cell positions (row/column)
+  - Highlighting `UsedRange`
 
-After startup, the WPF application:
+---
 
-1. Runs in console mode:
+## 🔧 How the Demo Works
+
+When launched, the WPF app:
+
+1. **Console-mode automation (auto-run)**
    - Launches Excel
-   - Fills cells with a multiplication table
-   - Inspects `Worksheet` COM members
-   - Prints results to the console
+   - Fills it with a multiplication table
+   - Inspects and prints `Worksheet` members
    - Launches Word
-   - Inserts formatted text into Word
-   - Closes Word
-2. Then it shows the `MainWindow`.
+   - Inserts a styled paragraph
+   - Quits Word
+2. **Then** shows the main WPF window (`MainWindow`)
 
-## Installation
+---
 
-1. Clone the repo:
-```bash
-git clone https://github.com/pmonitor0/ComAutoWrapperDemo.git
-2. Open the .sln file in Visual Studio.
+## 📦 Excel Selection Helpers (from `ComAutoWrapper`)
 
-3. Make sure the NuGet package (ComAutoWrapper) is installed.
+These helper methods are built into the `ComAutoWrapper` NuGet package under the `ComSelectionHelper` class:
 
-Full Excel + Word automation demo
-This WPF app runs both Excel and Word COM automation examples without any Interop DLLs:
+| Method | Description |
+|--------|-------------|
+| `SelectCells(excel, sheet, "A1", "C3", "F5")` | Selects multiple (non-contiguous) cells |
+| `GetSelectedCellCoordinates(excel)` | Returns list of `(row, column)` for user-selected cells |
+| `HighlightUsedRange(sheet)` | Highlights the entire `UsedRange` in Excel |
 
-Writes data into Excel
+You can reuse these from **any .NET app** (console, WPF, WinForms) — without any Interop reference.
 
-Formats a Word paragraph
+---
 
-Inspects COM members via ComTypeInspector
+## 💻 Prerequisites
 
-Source: ComAutoWrapperDemo
+- Windows OS (due to COM)
+- Installed Microsoft Excel and/or Word
+- .NET 6 / 7 / 8 / 9
+- No Interop DLLs required
 
-Requirements
-Windows (due to COM)
+---
 
-.NET 6/7/8/9
+## 📥 Installation
 
-Installed Microsoft Excel
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/pmonitor0/ComAutoWrapperDemo.git
+Open the .sln file in Visual Studio
 
-Installed Microsoft Word
+Ensure the ComAutoWrapper NuGet package is installed
 
-Related Projects
+🔗 Related Projects
 ComAutoWrapper (NuGet)
 
 ComAutoWrapper (GitHub)
 
-Acknowledgements
-The idea and development of this project were a collaborative effort with ChatGPT. ChatGPT provided extensive support.
+🙏 Acknowledgment
+This project was created as a collaborative effort with the support of ChatGPT.
+Many of the ideas, refactorings, and enhancements came from an ongoing back-and-forth conversation.
 
-License
+📄 License
 MIT

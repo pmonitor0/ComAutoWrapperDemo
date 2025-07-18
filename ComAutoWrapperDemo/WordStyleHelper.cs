@@ -12,13 +12,13 @@ namespace ComAutoWrapperDemo
     class WordStyleHelper
     {
 		public static void ApplyStyle(
-	 object range,
-	 Color? fontColor = null,
-	 Color? backgroundColor = null,
-	 float? fontSize = null,
-	 bool bold = false,
-	 bool italic = false,
-	 bool underline = false)
+			object range,
+			Color? fontColor = null,
+			Color? backgroundColor = null,
+			float? fontSize = null,
+			bool bold = false,
+			bool italic = false,
+			bool underline = false)
 		{
 			var font = ComInvoker.GetProperty<object>(range, "Font");
 			var shading = ComInvoker.GetProperty<object>(range, "Shading");
