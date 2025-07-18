@@ -24,6 +24,7 @@ namespace ComAutoWrapperDemo
 		private object? workbook;
 		private object? WorkSheet;
 		private object? rng;
+		Process? _excel = null;
 
 		public MainWindow()
 		{
@@ -35,7 +36,16 @@ namespace ComAutoWrapperDemo
 		{
 			try
 			{
+				if (_excel != null)
+					return;
 				excel = Activator.CreateInstance(Type.GetTypeFromProgID("Excel.Application")!);
+
+				nint processID;
+				int Hwnd = ComInvoker.GetProperty<int>(excel!, "Hwnd", null);
+				GetWindowThreadProcessId(Hwnd, out processID);
+				_excel = Process.GetProcessById(processID.ToInt32());
+
+
 				ComInvoker.SetProperty(excel!, "Visible", true);
 				Log("Excel started.");
 				workbooks = ComInvoker.GetProperty<object>(excel!, "Workbooks");
@@ -49,6 +59,8 @@ namespace ComAutoWrapperDemo
 
 		private void AddWorkbook_Click(object sender, RoutedEventArgs e)
 		{
+			if (_excel == null)
+				return;
 			try
 			{
 				ComInvoker.SetProperty(excel!, "DisplayAlerts", true);
@@ -69,9 +81,14 @@ namespace ComAutoWrapperDemo
 			}
 		}
 
+		[DllImport("user32.dll", SetLastError = true)]
+		static extern IntPtr GetWindowThreadProcessId(int hWnd, out IntPtr lpdwProcessId);
+
 		private void QuitExcel_Click(object sender, RoutedEventArgs e)
 		{
-			try
+			if (_excel == null)
+				return;
+				try
 			{
 
 				var (methods, propsGet, propsSet) = ComTypeInspector.ListMembers(workbook!);
@@ -93,23 +110,16 @@ namespace ComAutoWrapperDemo
 
 				ComInvoker.CallMethod(workbook!, "Close", (object)false);
 				Log("Workbook closed.");
-				workbook = null;
 				ComInvoker.CallMethod(excel!, "Quit");
 				Log("Excel closed.");
-				if (rng != null) Marshal.ReleaseComObject(rng!);
-				if (WorkSheet != null) Marshal.ReleaseComObject(WorkSheet);
-				if (workbooks != null) Marshal.ReleaseComObject(workbooks);
+				
+				if (_excel != null)
+				{
+					excel = null;
+					_excel.Kill();
+					_excel = null;
+				}
 
-
-				if (excel != null) Marshal.ReleaseComObject(excel);
-				workbooks = null;
-				workbook = null;
-				WorkSheet = null;
-				rng = null;
-				excel = null;
-
-				GC.Collect();
-				GC.WaitForPendingFinalizers();
 			}
 			catch (Exception ex)
 			{
@@ -139,10 +149,19 @@ namespace ComAutoWrapperDemo
 			this.Hide(); // amíg nem fut le a demo
 		}
 
+		
 
 		private void RunExcelDemo()
 		{
+			if (_excel != null)
+				return;
 			excel = Activator.CreateInstance(Type.GetTypeFromProgID("Excel.Application"));
+
+			nint processID;
+			int Hwnd = ComInvoker.GetProperty<int>(excel!, "Hwnd", null);
+			GetWindowThreadProcessId(Hwnd, out processID);
+			_excel = Process.GetProcessById(processID.ToInt32());
+
 			ComInvoker.SetProperty(excel!, "Visible", true);
 			ComInvoker.SetProperty(excel!, "DisplayAlerts", true);
 			workbooks = ComInvoker.GetProperty<object>(excel!, "Workbooks");
@@ -193,9 +212,9 @@ namespace ComAutoWrapperDemo
 			//Console.WriteLine("Select cells in the workbook, then press a key");
 			//Console.ReadKey(true);
 
-			ComAutoWrapper.ExcelSelectionHelper.SelectCells(WorkSheet!, new string[] { "A1", "B2", "C3", "D4" });
+			ExcelSelectionHelper.SelectCells(WorkSheet!, new string[] { "A1", "B2", "C3", "D4" });
 
-			var cells = ComAutoWrapper.ExcelSelectionHelper.GetSelectedCellObjects(excel);
+			var cells = ExcelSelectionHelper.GetSelectedCellObjects(excel);
 
 			foreach (var (row, col, cell) in cells)
 			{
@@ -205,7 +224,7 @@ namespace ComAutoWrapperDemo
 			}
 
 
-			var selectedCells = ComAutoWrapper.ExcelSelectionHelper.GetSelectedCellCoordinates(excel);
+			var selectedCells = ExcelSelectionHelper.GetSelectedCellCoordinates(excel);
 			foreach (var (row, col) in selectedCells)
 				Console.WriteLine($"Row={row}, Column={col}");
 
@@ -214,20 +233,13 @@ namespace ComAutoWrapperDemo
 			ComInvoker.CallMethod(workbook!, "Close", (object)false);
 			workbook = null;
 			ComInvoker.CallMethod(excel!, "Quit");
-			if (rng != null) Marshal.ReleaseComObject(rng!);
-			if (WorkSheet != null) Marshal.ReleaseComObject(WorkSheet);
-			if (workbooks != null) Marshal.ReleaseComObject(workbooks);
-
-
-			if (excel != null) Marshal.ReleaseComObject(excel);
-			workbooks = null;
-			workbook = null;
-			WorkSheet = null;
-			rng = null;
-			excel = null;
-
-			GC.Collect();
-			GC.WaitForPendingFinalizers();
+			if (_excel != null)
+			{
+				excel = null;
+				_excel.Kill();
+				_excel = null;
+			}
+			
 		}
 
 		private void RunWordDemo()
