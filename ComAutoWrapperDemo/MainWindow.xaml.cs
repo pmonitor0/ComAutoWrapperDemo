@@ -218,7 +218,7 @@ namespace ComAutoWrapperDemo
 
 			//object? usedRange = comworksheet.GetType().InvokeMember("UsedRange", BindingFlags.GetProperty, null, comworksheet, null);
 
-			HighlightUsedRange(WorkSheet!, System.Drawing.Color.Red);
+			ExcelSelectionHelper.HighlightUsedRange(WorkSheet!, System.Drawing.Color.Red);
 
 			var cells = ExcelSelectionHelper.GetSelectedCellObjects(excel);
 
@@ -247,7 +247,7 @@ namespace ComAutoWrapperDemo
 			}
 			
 		}
-
+		/*
 		public static void SelectUsedRange(object worksheet)
 		{
 			var usedRange = ComInvoker.GetProperty<object>(worksheet, "UsedRange");
@@ -261,6 +261,7 @@ namespace ComAutoWrapperDemo
 			var interior = ComInvoker.GetProperty<object>(usedRange, "Interior");
 			ComInvoker.SetProperty(interior!, "Color", color);
 		}
+		*/
 
 		private void RunWordDemo()
 		{
