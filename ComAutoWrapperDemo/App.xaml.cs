@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace ComAutoWrapperDemo
+namespace ComAutoWrapper
 {
     /// <summary>
     /// Interaction logic for App.xaml

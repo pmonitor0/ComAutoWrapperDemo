@@ -1,7 +1,7 @@
-﻿<Application x:Class="ComAutoWrapperDemo.App"
+﻿<Application x:Class="ComAutoWrapper.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:ComAutoWrapperDemo"
+             xmlns:local="clr-namespace:ComAutoWrapper"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
          

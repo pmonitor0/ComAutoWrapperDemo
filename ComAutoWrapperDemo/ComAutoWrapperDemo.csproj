@@ -23,7 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ComAutoWrapper" Version="1.1.5.3" />
+    <Reference Include="ComAutoWrapper">
+      <HintPath>..\..\ComAutoWrapper\bin\Release\net9.0\ComAutoWrapper.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
