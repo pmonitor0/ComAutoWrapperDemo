@@ -1,0 +1,457 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ComAutoWrapper</name>
+    </assembly>
+    <members>
+        <member name="T:ComAutoWrapper.ComAutoHelper">
+            <summary>
+            Magas szintű segédfüggvények COM objektumok tulajdonságainak biztonságos lekérdezéséhez.
+            </summary>
+        </member>
+        <member name="M:ComAutoWrapper.ComAutoHelper.TryGetProperty``1(System.Object,System.String,``0@)">
+            <summary>
+            Megpróbál lekérni egy property értéket a megadott COM objektumtól, paraméterek nélkül.
+            A hívás nem dob kivételt, sikertelenség esetén false értékkel tér vissza.
+            </summary>
+            <typeparam name="T">A visszatérési érték típusa.</typeparam>
+            <param name="comObject">A COM objektum, amelytől a property-t le szeretnénk kérni.</param>
+            <param name="propertyName">A lekérdezendő property neve.</param>
+            <param name="value">A lekért érték, ha sikeres a hívás; egyébként a típus alapértelmezett értéke.</param>
+            <returns><c>true</c>, ha a lekérés sikeres volt és az érték típuskompatibilis; különben <c>false</c>.</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ComAutoHelper.TryGetProperty``1(System.Object,System.String,``0@,System.Object[])">
+            <summary>
+            Megpróbál lekérni egy property értéket a megadott COM objektumtól, opcionális paraméterekkel.
+            A hívás nem dob kivételt, sikertelenség esetén false értékkel tér vissza.
+            </summary>
+            <typeparam name="T">A visszatérési érték típusa.</typeparam>
+            <param name="comObject">A COM objektum, amelytől a property-t le szeretnénk kérni.</param>
+            <param name="propertyName">A lekérdezendő property neve.</param>
+            <param name="value">A lekért érték, ha sikeres a hívás; egyébként a típus alapértelmezett értéke.</param>
+            <param name="args">Opcionális paraméterek (pl. indexelt property-khez).</param>
+            <returns><c>true</c>, ha a lekérés sikeres volt és az érték típuskompatibilis; különben <c>false</c>.</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ComAutoHelper.PropertyExists(System.Object,System.String)">
+            <summary>
+            Megvizsgálja, hogy létezik-e a megadott property a COM objektumon.
+            A vizsgálat nem dob kivételt, ha nem sikerül, false értékkel tér vissza.
+            </summary>
+            <param name="comObject">A vizsgálandó COM objektum.</param>
+            <param name="propertyName">A keresett property neve.</param>
+            <returns><c>true</c>, ha a property elérhető; különben <c>false</c>.</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ComAutoHelper.GetProcessByExcelHandle(System.Object)">
+             <summary>
+             Lekéri az Excel.Application COM objektumhoz tartozó Windows folyamatot (Process).
+             </summary>
+             <param name="excelApp">Az Excel COM objektum.</param>
+             <returns>A hozzá tartozó Process példány.</returns>
+             <exception cref="T:System.InvalidOperationException">
+             Ha nem sikerül lekérni az ablak handle-t vagy a folyamatazonosítót.
+             </exception>
+             <example>
+             using System.Diagnostics;
+             ...
+             var proc = ComAutoHelper.GetProcessByExcelHandle(excelApp);
+             Console.WriteLine("Excel PID: " + proc.Id);
+             </example>
+             <returns>
+            <c>true</c>, ha a lekérés sikeres volt és az érték típuskompatibilis; különben<c>false</c>.
+            </returns>
+        </member>
+        <member name="T:ComAutoWrapper.ComReleaseHelper">
+            <summary>
+            Segédosztály COM objektumok manuális nyomon követéséhez és felszabadításához.
+            </summary>
+        </member>
+        <member name="M:ComAutoWrapper.ComReleaseHelper.Track``1(``0)">
+            <summary>
+            Hozzáad egy COM objektumot a nyomon követett példányok listájához.
+            Azonos példányt nem ad hozzá újra (referencia szerint vizsgál).
+            </summary>
+            <typeparam name="T">A COM objektum típusa.</typeparam>
+            <param name="comObject">A COM objektum, amelyet nyomon követünk.</param>
+            <returns>Ugyanaz a COM objektum, változtatás nélkül.</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ComReleaseHelper.ReleaseAll">
+            <summary>
+            Felszabadítja az összes nyomon követett COM objektumot a <see cref="M:System.Runtime.InteropServices.Marshal.FinalReleaseComObject(System.Object)"/> segítségével.
+            Sikertelen felszabadítás esetén a kivétel elnyelésre kerül.
+            </summary>
+        </member>
+        <member name="M:ComAutoWrapper.ComReleaseHelper.Clear">
+            <summary>
+            Törli a nyomon követett objektumok listáját anélkül, hogy felszabadítaná őket.
+            </summary>
+        </member>
+        <member name="P:ComAutoWrapper.ComReleaseHelper.Count">
+            <summary>
+            Visszaadja a nyomon követett COM objektumok számát.
+            </summary>
+        </member>
+        <member name="M:ComAutoWrapper.ComReleaseHelper.DebugList">
+            <summary>
+            Kiírja a Console-ra az összes nyomon követett COM objektum típusát.
+            Segítséget nyújt a hibakereséshez és fejlesztéshez.
+            </summary>
+        </member>
+        <member name="M:ComAutoWrapper.ComReleaseHelper.Remove(System.Object)">
+            <summary>
+            Eltávolít egy adott COM objektumot a követett listából, ha benne van.
+            </summary>
+            <param name="comObject">A COM objektum, amelyet törölni szeretnél.</param>
+            <returns><c>true</c>, ha sikerült eltávolítani.</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ComReleaseHelper.Reset">
+            <summary>
+            Felszabadítja az összes COM objektumot, majd kiüríti a listát.
+            </summary>
+        </member>
+        <member name="M:ComAutoWrapper.ComReleaseHelper.IsTracked(System.Object)">
+            <summary>
+            Megvizsgálja, hogy a megadott COM objektum jelen van-e a nyilvántartásban.
+            </summary>
+        </member>
+        <member name="T:ComAutoWrapper.ComRotHelper">
+            <summary>
+            Segédosztály a Running Object Table (ROT) vizsgálatához és Excel alkalmazások detektálásához.
+            </summary>
+        </member>
+        <member name="M:ComAutoWrapper.ComRotHelper.GetExcelApplications">
+            <summary>
+            Lekéri a rendszerben futó Excel alkalmazás példányokat a Running Object Table (ROT) alapján.
+            A metódus olyan Workbook objektumokat keres, amelyek COM interfészen keresztül elérhetőek,
+            majd ezekből kinyeri a hozzájuk tartozó Application objektumot.
+            </summary>
+            <returns>A detektált Excel Application COM objektumok listája.</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ComRotHelper.GetRunningObjectTable(System.Int32,System.Runtime.InteropServices.ComTypes.IRunningObjectTable@)">
+            <summary>
+            Meghívja az <c>ole32.dll</c> <c>GetRunningObjectTable</c> API-ját, amely elérhetővé teszi a futó COM objektumokat.
+            </summary>
+            <param name="reserved">Mindig 0.</param>
+            <param name="prot">A visszaadott <see cref="T:System.Runtime.InteropServices.ComTypes.IRunningObjectTable"/> példány, ha sikeres.</param>
+            <returns>0, ha sikeres (S_OK); különben hibakód.</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ComRotHelper.CreateBindCtx(System.Int32,System.Runtime.InteropServices.ComTypes.IBindCtx@)">
+            <summary>
+            Meghívja az <c>ole32.dll</c> <c>CreateBindCtx</c> API-ját, amely létrehoz egy bind kontextust.
+            </summary>
+            <param name="reserved">Mindig 0.</param>
+            <param name="ppbc">A visszaadott <see cref="T:System.Runtime.InteropServices.ComTypes.IBindCtx"/> példány, ha sikeres.</param>
+            <returns>0, ha sikeres (S_OK); különben hibakód.</returns>
+        </member>
+        <member name="T:ComAutoWrapper.ComValueConverter">
+            <summary>
+            Segédosztály a .NET típusok és COM-kompatibilis értékek közötti konverzióhoz.
+            Hasznos például Excel vagy Word automatizálás során, ahol OLE_COLOR vagy OLE_DATE típusokkal kell dolgozni.
+            </summary>
+        </member>
+        <member name="M:ComAutoWrapper.ComValueConverter.ToOleColor(System.Drawing.Color)">
+            <summary>
+            Átalakít egy .NET <see cref="T:System.Drawing.Color"/> színt OLE_COLOR formátumra (24 bites BGR egész szám).
+            </summary>
+            <param name="color">A .NET szín, amelyet konvertálni szeretnénk.</param>
+            <returns>Az OLE_COLOR érték, amelyet a COM-kompatibilis API-k használnak (BGR sorrendű int).</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ComValueConverter.ToComBool(System.Boolean)">
+            <summary>
+            Átalakít egy logikai értéket (bool) COM kompatibilis egész értékre: 1 (true) vagy 0 (false).
+            </summary>
+            <param name="value">A logikai érték.</param>
+            <returns>1, ha true; 0, ha false.</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ComValueConverter.ToOleDate(System.DateTime)">
+            <summary>
+            Átalakít egy .NET <see cref="T:System.DateTime"/> értéket OLE Automation Date formátumra (pl. Excel dátummező).
+            </summary>
+            <param name="value">A konvertálandó időpont.</param>
+            <returns>Az OLE Automation Date formátumú dátum (double).</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ComValueConverter.FromOleDate(System.Double)">
+            <summary>
+            Átalakít egy OLE Automation Date értéket (double) .NET <see cref="T:System.DateTime"/> formátumra.
+            </summary>
+            <param name="value">Az OLE formátumú dátum (általában Excel vagy COM visszatérési érték).</param>
+            <returns>A megfelelő <see cref="T:System.DateTime"/> példány.</returns>
+        </member>
+        <member name="T:ComAutoWrapper.ComInvoker">
+            <summary>
+            Segédosztály COM objektumok property-jeinek és metódusainak dinamikus eléréséhez.
+            </summary>
+        </member>
+        <member name="M:ComAutoWrapper.ComInvoker.GetProperty``1(System.Object,System.String)">
+            <summary>
+            Lekér egy property értéket a megadott COM objektumtól, paraméterek nélkül.
+            </summary>
+            <typeparam name="T">A visszatérési érték típusa.</typeparam>
+            <param name="comObject">A COM objektum, amelytől a property-t le szeretnénk kérni.</param>
+            <param name="propertyName">A lekérdezendő property neve.</param>
+            <returns>A property értéke, vagy <c>default(T)</c>, ha a lekérés sikertelen vagy nem konvertálható.</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ComInvoker.GetProperty``1(System.Object,System.String,System.Object[])">
+            <summary>
+            Lekér egy property értéket a megadott COM objektumtól, opcionális paraméterekkel (pl. indexelt property).
+            </summary>
+            <typeparam name="T">A visszatérési érték típusa.</typeparam>
+            <param name="comObject">A COM objektum, amelytől a property-t le szeretnénk kérni.</param>
+            <param name="propertyName">A lekérdezendő property neve.</param>
+            <param name="parameters">Opcionális paraméterek, például indexelt property-k esetén.</param>
+            <returns>A property értéke, vagy <c>default(T)</c>, ha a lekérés sikertelen vagy nem konvertálható.</returns>
+            <exception cref="T:System.InvalidOperationException">Ha COM kivétel történik a property elérésekor.</exception>
+        </member>
+        <member name="M:ComAutoWrapper.ComInvoker.SetProperty(System.Object,System.String,System.Object)">
+            <summary>
+            Beállítja egy COM objektum property-jének értékét.
+            </summary>
+            <param name="comObject">A COM objektum, amelynek a property-jét be szeretnénk állítani.</param>
+            <param name="propertyName">A beállítandó property neve.</param>
+            <param name="value">A beállítandó érték.</param>
+        </member>
+        <member name="M:ComAutoWrapper.ComInvoker.SetProperty(System.Object,System.String,System.Object[])">
+            <summary>
+            Beállítja egy COM objektum property-jének értékét tetszőleges paraméterlistával.
+            </summary>
+            <param name="comObject">A COM objektum, amelynek a property-jét be szeretnénk állítani.</param>
+            <param name="propertyName">A beállítandó property neve.</param>
+            <param name="parameters">A property beállításához használt paraméterek (pl. index és érték).</param>
+            <exception cref="T:System.InvalidOperationException">Ha COM kivétel történik a property beállításakor.</exception>
+        </member>
+        <member name="M:ComAutoWrapper.ComInvoker.CallMethod(System.Object,System.String,System.Object[])">
+            <summary>
+            Meghív egy metódust a megadott COM objektumon.
+            </summary>
+            <param name="comObject">A COM objektum, amelyen a metódust hívni szeretnénk.</param>
+            <param name="methodName">A meghívandó metódus neve.</param>
+            <param name="args">A metódushoz tartozó argumentumok.</param>
+            <returns>A visszatérési érték (ha van), vagy <c>null</c>, ha a hívás sikertelen.</returns>
+            <exception cref="T:System.InvalidOperationException">Ha COM kivétel történik a metódus hívásakor.</exception>
+        </member>
+        <member name="M:ComAutoWrapper.ComInvoker.CallMethod``1(System.Object,System.String,System.Object[])">
+            <summary>
+            Meghív egy metódust a megadott COM objektumon, és a visszatérési értéket a megadott típusra castolja.
+            </summary>
+            <typeparam name="T">A várt visszatérési típus.</typeparam>
+            <param name="comObject">A COM objektum, amelyen a metódust hívni szeretnénk.</param>
+            <param name="methodName">A meghívandó metódus neve.</param>
+            <param name="parameters">A metódushoz tartozó argumentumok.</param>
+            <returns>A visszatérési érték típusként, vagy <c>default(T)</c>, ha a hívás sikertelen.</returns>
+            <exception cref="T:System.InvalidOperationException">Ha COM kivétel történik a metódus hívásakor.</exception>
+        </member>
+        <member name="M:ComAutoWrapper.ComInvoker.ListCallableMembers(System.Object)">
+            <summary>
+            Lekér egy listát a COM objektum publikus elérhető metódusairól és property-jeiről.
+            </summary>
+            <param name="comObject">A COM objektum, amelynek a tagjait listázni szeretnénk.</param>
+            <returns>A tagok neveinek listája típusmegjelöléssel (pl. "Property: Name").</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ComInvoker.ThrowComException(System.String,System.Reflection.TargetInvocationException)">
+            <summary>
+            Kivételt dob célzott COM hiba esetén, amely kinyeri a belső <see cref="T:System.Runtime.InteropServices.COMException"/> információt.
+            </summary>
+            <param name="memberName">A hívott property vagy metódus neve.</param>
+            <param name="tie">A kivétel, amelyet az InvokeMember hívás dobott.</param>
+        </member>
+        <member name="T:ComAutoWrapper.ComTypeInspector">
+            <summary>
+            Segédosztály COM objektumok típusinformációinak és tagjainak introspekciójához.
+            Az <see cref="T:ComAutoWrapper.IDispatch"/> és <see cref="T:System.Runtime.InteropServices.ComTypes.ITypeInfo"/> interfészeken keresztül működik.
+            </summary>
+        </member>
+        <member name="M:ComAutoWrapper.ComTypeInspector.GetTypeName(System.Object)">
+            <summary>
+            Lekéri a COM objektum típusának nevét az <c>ITypeInfo.GetDocumentation</c> alapján.
+            </summary>
+            <param name="comObject">A COM objektum, amelynek a típusnevét le szeretnénk kérni.</param>
+            <returns>A típus neve (általában az interfész neve), vagy <c>null</c>, ha nem elérhető.</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ComTypeInspector.ListMembers(System.Object)">
+            <summary>
+            Lekéri a COM objektum összes elérhető tagját három kategóriában:
+            metódusok, olvasható property-k, és írható property-k.
+            </summary>
+            <param name="comObject">A vizsgálandó COM objektum.</param>
+            <returns>
+            Egy tuple három listával:
+            <list type="bullet">
+            <item><description><c>Methods</c>: elérhető metódusok nevei</description></item>
+            <item><description><c>PropertyGets</c>: olvasható property-k nevei</description></item>
+            <item><description><c>PropertySets</c>: írható property-k nevei</description></item>
+            </list>
+            </returns>
+        </member>
+        <member name="T:ComAutoWrapper.ExcelHelper">
+            <summary>
+            Magas szintű segédosztály Excel COM automatizáláshoz.
+            Lehetővé teszi a munkafüzetek, munkalapok és cellatartományok egyszerű elérését.
+            </summary>
+        </member>
+        <member name="M:ComAutoWrapper.ExcelHelper.GetWorkbooks(System.Object)">
+            <summary>
+            Lekéri az összes megnyitott Excel munkafüzetet egy Excel Application COM objektumból.
+            </summary>
+            <param name="excelApplication">Az Excel Application COM objektum (pl. <c>Excel.Application</c>).</param>
+            <returns>A munkafüzetek listája (<c>Workbook</c> COM objektumokként).</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ExcelHelper.GetWorksheets(System.Object)">
+            <summary>
+            Lekéri az összes munkalapot egy adott Excel munkafüzetből.
+            </summary>
+            <param name="workbook">A <c>Workbook</c> COM objektum.</param>
+            <returns>A munkalapok listája (<c>Worksheet</c> COM objektumokként).</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ExcelHelper.GetRange(System.Object,System.String)">
+            <summary>
+            Lekér egy cellatartományt (range) a megadott munkalapról Excel-címezés alapján (pl. "B2:D5").
+            </summary>
+            <param name="worksheet">A <c>Worksheet</c> COM objektum, ahonnan a tartományt le szeretnénk kérni.</param>
+            <param name="address">A tartomány címe Excel-formátumban (pl. "A1", "B2:C3").</param>
+            <returns>A tartomány (<c>Range</c> COM objektum), vagy <c>null</c>, ha hiba történt.</returns>
+        </member>
+        <member name="T:ComAutoWrapper.ExcelSelectionHelper">
+            <summary>
+            Segédosztály Excel COM tartományok kijelöléséhez, színezéséhez, valamint cellák koordinátáinak lekérdezéséhez.
+            </summary>
+        </member>
+        <member name="M:ComAutoWrapper.ExcelSelectionHelper.SelectUsedRange(System.Object)">
+            <summary>
+            Kijelöli az aktív munkalap használt tartományát (<c>UsedRange</c>).
+            </summary>
+            <param name="worksheet">A <c>Worksheet</c> COM objektum, amelyen a kijelölést végezzük.</param>
+        </member>
+        <member name="M:ComAutoWrapper.ExcelSelectionHelper.HighlightUsedRange(System.Object,System.Int32)">
+            <summary>
+            Kijelöli és háttérszínnel kiemeli az aktív munkalap használt tartományát.
+            </summary>
+            <param name="worksheet">A <c>Worksheet</c> COM objektum.</param>
+            <param name="color">A kívánt háttérszín OLE_COLOR formátumban (pl. BGR int).</param>
+        </member>
+        <member name="M:ComAutoWrapper.ExcelSelectionHelper.SelectCells(System.Object,System.String[])">
+            <summary>
+            Kijelöli a megadott cellacímek által meghatározott tartományokat (pl. "A1", "B2:D4").
+            Több cím esetén automatikusan összevonja őket (<c>Union</c>).
+            </summary>
+            <param name="sheet">A <c>Worksheet</c> COM objektum.</param>
+            <param name="addresses">A kijelölendő tartományok címei Excel formátumban.</param>
+        </member>
+        <member name="M:ComAutoWrapper.ExcelSelectionHelper.GetSelectedCellCoordinates(System.Object)">
+            <summary>
+            Lekéri az aktuálisan kijelölt cellák (akár több tartományból) koordinátáit.
+            </summary>
+            <param name="excel">Az Excel Application vagy Window COM objektum, amelyből a kijelölt tartomány elérhető.</param>
+            <returns>A kiválasztott cellák listája sor és oszlop szerint (<c>Row</c>, <c>Column</c>).</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ExcelSelectionHelper.GetSelectedCellObjects(System.Object)">
+            <summary>
+            Lekéri az aktuálisan kijelölt cellák koordinátáit és COM objektumait is.
+            </summary>
+            <param name="excel">Az Excel Application vagy Window COM objektum, amelyből a kijelölt tartomány elérhető.</param>
+            <returns>Lista a kijelölt cellák koordinátáival és COM objektumaival: (<c>Row</c>, <c>Column</c>, <c>Cell</c>).</returns>
+        </member>
+        <member name="M:ComAutoWrapper.ExcelSelectionHelper.ColumnLetterToNumber(System.String)">
+            <summary>
+            Excel oszlopbetű (pl. "A", "AB") átalakítása sorszámmá (pl. 1, 28).
+            </summary>
+            <param name="col">Az oszlop betűjele.</param>
+            <returns>A numerikus sorszám (1-alapú).</returns>
+        </member>
+        <member name="T:ComAutoWrapper.ExcelStyleHelper">
+            <summary>
+            Segédosztály Excel cellák stílusának módosításához (pl. háttérszín).
+            </summary>
+        </member>
+        <member name="M:ComAutoWrapper.ExcelStyleHelper.SetCellBackground(System.Object,System.Drawing.Color)">
+            <summary>
+            Beállítja egy Excel cella háttérszínét (interior color) a megadott <see cref="T:System.Drawing.Color"/> érték alapján.
+            </summary>
+            <param name="cell">A cél cella COM objektum (típus: <c>Range</c>).</param>
+            <param name="color">A kívánt háttérszín .NET <see cref="T:System.Drawing.Color"/> típusban.</param>
+        </member>
+        <member name="T:ComAutoWrapper.IDispatch">
+            <summary>
+            A szabványos COM <c>IDispatch</c> interfész alacsony szintű leképezése.
+            Lehetővé teszi késői kötésű tagelérést és típusinformációk elérését <c>ITypeInfo</c> segítségével.
+            </summary>
+        </member>
+        <member name="M:ComAutoWrapper.IDispatch.GetTypeInfoCount(System.Int32@)">
+            <summary>
+            Lekérdezi, hogy a COM objektum mennyi típusinformációval rendelkezik (0 vagy 1).
+            </summary>
+            <param name="Count">A típusinformációk száma.</param>
+            <returns>HRESULT kód (0 = S_OK).</returns>
+        </member>
+        <member name="M:ComAutoWrapper.IDispatch.GetTypeInfo(System.Int32,System.Int32,System.Runtime.InteropServices.ComTypes.ITypeInfo@)">
+            <summary>
+            Lekéri az adott típusinformációt (<see cref="T:System.Runtime.InteropServices.ComTypes.ITypeInfo"/>).
+            </summary>
+            <param name="iTInfo">A kért típusinformáció indexe (általában 0).</param>
+            <param name="lcid">A nyelvi azonosító (pl. 1033 = en-US).</param>
+            <param name="typeInfo">Az eredményül kapott <see cref="T:System.Runtime.InteropServices.ComTypes.ITypeInfo"/> objektum.</param>
+            <returns>HRESULT kód (0 = S_OK).</returns>
+        </member>
+        <member name="M:ComAutoWrapper.IDispatch.GetIDsOfNames(System.Guid@,System.String[],System.Int32,System.Int32,System.Int32[])">
+            <summary>
+            Leképezi a tagneveket diszpidhívásokhoz használható azonosítókká (<c>DispId</c>).
+            </summary>
+            <param name="riid">Mindig <see cref="F:System.Guid.Empty"/>.</param>
+            <param name="rgsNames">A lekérdezendő tagnevek tömbje.</param>
+            <param name="cNames">A nevek száma.</param>
+            <param name="lcid">A nyelvi azonosító.</param>
+            <param name="rgDispId">A visszatérő azonosítók tömbje.</param>
+            <returns>HRESULT kód (0 = S_OK).</returns>
+        </member>
+        <member name="M:ComAutoWrapper.IDispatch.Invoke(System.Int32,System.Guid@,System.UInt32,System.UInt16,System.Runtime.InteropServices.ComTypes.DISPPARAMS@,System.Object@,System.Runtime.InteropServices.ComTypes.EXCEPINFO@,System.IntPtr[])">
+            <summary>
+            Meghív egy metódust vagy property-t a <c>DispId</c> alapján.
+            Ez az alacsony szintű belső hívás a késői kötésű COM elérés alapja.
+            </summary>
+            <param name="dispIdMember">A meghívandó tag DispId azonosítója.</param>
+            <param name="riid">Mindig <see cref="F:System.Guid.Empty"/>.</param>
+            <param name="lcid">A nyelvi azonosító.</param>
+            <param name="wFlags">A hívás típusa (<c>DISPATCH_METHOD</c>, <c>DISPATCH_PROPERTYGET</c>, stb.).</param>
+            <param name="pDispParams">A híváshoz használt paraméterek.</param>
+            <param name="pVarResult">A visszatérési érték.</param>
+            <param name="pExcepInfo">Kivételinformáció, ha hiba történik.</param>
+            <param name="pArgErr">Hibás argumentum indexek.</param>
+            <returns>HRESULT kód (0 = S_OK).</returns>
+        </member>
+        <member name="T:ComAutoWrapper.WordHelper">
+            <summary>
+            Mintaosztály, amely bemutatja, hogyan lehet Word dokumentumba táblázatot beszúrni és formázni COM automatizálással.
+            </summary>
+        </member>
+        <member name="M:ComAutoWrapper.WordHelper.RunWordInsertTableDemo">
+            <summary>
+            Word alkalmazás indítása → új dokumentum létrehozása → 3x3-as táblázat beszúrása → cellák kitöltése és fejléc formázása.
+            A végén a dokumentum bezáródik mentés nélkül, az alkalmazás pedig kilép.
+            </summary>
+        </member>
+        <member name="T:ComAutoWrapper.WordStyleHelper">
+            <summary>
+            Segédosztály Word tartományok (<c>Range</c>) stílusainak beállításához COM automatizálással.
+            </summary>
+        </member>
+        <member name="M:ComAutoWrapper.WordStyleHelper.ApplyStyle(System.Object,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Nullable{System.Single},System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Általános stílusbeállító metódus, amely egy Word <c>Range</c> objektumra alkalmaz stílusokat: betűszín, háttérszín, méret, félkövérség stb.
+            </summary>
+            <param name="range">A formázandó <c>Range</c> COM objektum.</param>
+            <param name="fontColor">Szövegszín OLE_COLOR (BGR int) formátumban. Ha <c>null</c>, nem módosul.</param>
+            <param name="backgroundColor">Háttérszín OLE_COLOR (BGR int) formátumban. Ha <c>null</c>, nem módosul.</param>
+            <param name="fontSize">A betűméret pontban (pl. 12.0). Ha <c>null</c>, nem módosul.</param>
+            <param name="bold"><c>true</c>, ha félkövérre szeretnéd állítani.</param>
+            <param name="italic"><c>true</c>, ha dőltre szeretnéd állítani.</param>
+            <param name="underline"><c>true</c>, ha aláhúzás szükséges.</param>
+        </member>
+        <member name="M:ComAutoWrapper.WordStyleHelper.ApplyBoldColoredBackground(System.Object,System.Int32,System.Int32,System.Single)">
+            <summary>
+            Gyors formázás: félkövér szöveg, háttér- és betűszín, megadott betűmérettel.
+            </summary>
+            <param name="range">A formázandó <c>Range</c> COM objektum.</param>
+            <param name="fontColor">Szövegszín OLE_COLOR (BGR int) formátumban.</param>
+            <param name="backgroundColor">Háttérszín OLE_COLOR (BGR int) formátumban.</param>
+            <param name="fontSize">A betűméret pontban (alapértelmezett: 12.0).</param>
+        </member>
+    </members>
+</doc>

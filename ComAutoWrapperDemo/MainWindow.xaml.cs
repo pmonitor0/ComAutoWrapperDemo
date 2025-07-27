@@ -143,7 +143,7 @@ namespace ComAutoWrapper
 				//WordHelper.RunWordInsertTableDemo();
 				//RunExcelDemo();
 				ExcelAdvancedDemo.Run();
-				//RunWordDemo();
+				RunWordDemo();
 
 				Dispatcher.Invoke(() =>
 				{

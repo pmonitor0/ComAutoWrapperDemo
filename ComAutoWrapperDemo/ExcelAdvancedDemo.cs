@@ -82,7 +82,7 @@ namespace ComAutoWrapper
 			bool fakeExists = ComAutoHelper.PropertyExists(excel!, "NemLetezoProperty123");
 			Console.WriteLine($"[ComAutoHelper] 'NemLetezoProperty123' property létezik: {fakeExists}");
 
-			Console.WriteLine("\nDemo vége. Enter után bezárunk mindent.");
+			Console.WriteLine("\nBezárjuk az Excelt, majd megnyitjuk a Word-öt");
             Console.ReadKey(true);
 
             // Bezárás és takarítás
